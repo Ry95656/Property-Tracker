@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   DollarSign, Wrench, CalendarDays, Plus, X, Trash2,
-  ChevronLeft, ChevronRight, Pencil, Check, Home, MessageSquare, Camera,
+  ChevronLeft, ChevronRight, Pencil, Check, Home, MessageSquare, Camera, AlertTriangle,
 } from "lucide-react";
 import { storage } from "./storage";
 
@@ -195,11 +195,11 @@ function AppointmentCalendar({ cursor, setCursor, appointmentsByDate, selectedDa
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="p-1 rounded hover:bg-black/5" style={{ color: "var(--ink)" }}>
+        <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink)" }}>
           <ChevronLeft size={18} />
         </button>
         <span className="font-mono text-sm tracking-wide" style={{ color: "var(--ink)" }}>{monthLabel}</span>
-        <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="p-1 rounded hover:bg-black/5" style={{ color: "var(--ink)" }}>
+        <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink)" }}>
           <ChevronRight size={18} />
         </button>
       </div>
@@ -215,7 +215,7 @@ function AppointmentCalendar({ cursor, setCursor, appointmentsByDate, selectedDa
           const isSelected = dateStr === selectedDate;
           return (
             <button key={i} onClick={() => onSelectDay(dateStr)}
-              className="aspect-square rounded-sm p-1 text-left flex flex-col items-start overflow-hidden"
+              className="calendar-day aspect-square rounded-sm p-1 text-left flex flex-col items-start overflow-hidden"
               style={{
                 border: "1px solid var(--rule)",
                 background: isSelected ? "rgba(201,123,69,0.15)" : "transparent",
@@ -324,30 +324,36 @@ export default function PropertyLedger() {
         .ledger-app .ledger-serif { font-family:'Special Elite',monospace; }
         .ledger-app .ledger-mono { font-family:'IBM Plex Mono',monospace; }
         .ledger-app .ledger-lines { background-image: repeating-linear-gradient(to bottom, transparent, transparent 39px, var(--rule) 39px, var(--rule) 40px); }
-        .ledger-app .stamp { display:inline-block; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:11px; letter-spacing:0.06em; padding:3px 8px; border-radius:3px; text-transform:uppercase; }
-        .ledger-app .stamp-red { color:var(--red); border:2px solid var(--red); box-shadow:0 0 0 1px var(--red) inset; background:rgba(166,58,46,0.06); }
-        .ledger-app .stamp-green { color:var(--green); border:2px solid var(--green); box-shadow:0 0 0 1px var(--green) inset; background:rgba(63,107,74,0.06); }
-        .ledger-app .stamp-navy { color:var(--ink); border:2px solid var(--ink); box-shadow:0 0 0 1px var(--ink) inset; background:rgba(30,42,47,0.05); }
-        .ledger-app .ledger-input { background:transparent; border:none; border-bottom:1px solid var(--rule); padding:4px 2px; font-family:'Inter',sans-serif; color:var(--ink); }
-        .ledger-app .ledger-input:focus { outline:none; border-bottom:1px solid var(--kraft); }
-        .ledger-app .folder-tab { transition: transform .15s ease, margin .15s ease; }
-        .ledger-app .card { background: var(--paper-deep); border:1px solid var(--rule); border-radius:4px; }
+        .ledger-app .stamp { font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; }
+        .ledger-app .stamp-red { color:var(--red); }
+        .ledger-app .stamp-green { color:var(--green); }
+        .ledger-app .stamp-navy { color:var(--ink); }
+        .ledger-app .ledger-input { background:transparent; border:none; border-bottom:1px solid var(--rule); padding:5px 2px; font-family:'Inter',sans-serif; color:var(--ink); transition:border-color .15s ease, background-color .15s ease; }
+        .ledger-app .ledger-input:focus { outline:none; border-bottom:1px solid var(--kraft); background:rgba(201,123,69,0.05); }
+        .ledger-app .folder-tab { transition:filter .15s ease, box-shadow .15s ease; }
+        .ledger-app .folder-tab:hover { filter:brightness(1.08); }
+        .ledger-app .folder-tab.active { box-shadow:0 2px 6px rgba(30,42,47,0.15); }
+        .ledger-app .folder-tab.active:hover { filter:none; }
+        .ledger-app .card { background: var(--paper-deep); border:1px solid var(--rule); border-radius:8px; box-shadow:0 1px 3px rgba(30,42,47,0.07); }
+        .ledger-app .card-hover { transition:transform .15s ease, box-shadow .15s ease; }
+        .ledger-app .card-hover:hover { transform:translateY(-2px); box-shadow:0 6px 14px rgba(30,42,47,0.12); }
+        .ledger-app .ledger-row { border-radius:5px; transition:background-color .12s ease; }
+        .ledger-app .ledger-row:hover { background-color:rgba(30,42,47,0.045); }
+        .ledger-app .calendar-day:hover { background-color:rgba(201,123,69,0.12) !important; }
       `}</style>
 
       <div className="w-16 shrink-0" style={{ background: "var(--ink)" }} />
 
-      <div className="w-14 sm:w-40 shrink-0 flex flex-col gap-2 pt-6 -ml-16 z-10">
+      <div className="w-16 sm:w-44 shrink-0 flex flex-col gap-2 pt-6">
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className="folder-tab flex items-center gap-2 pl-5 pr-3 sm:pr-4 py-3 rounded-r-md text-xs sm:text-sm font-semibold"
+              className={`folder-tab flex items-center gap-2 pl-5 pr-3 sm:pr-4 py-3 rounded-r-md text-xs sm:text-sm font-semibold ${active ? "active" : ""}`}
               style={{
-                marginLeft: active ? "0" : "-56px",
                 background: active ? "var(--paper)" : "var(--kraft)",
                 color: active ? "var(--ink)" : "#fff",
-                boxShadow: active ? "2px 0 6px rgba(0,0,0,0.08)" : "none",
               }}>
               <Icon size={16} />
               <span className="hidden sm:inline">{t.label}</span>
@@ -357,17 +363,17 @@ export default function PropertyLedger() {
       </div>
 
       <div className="flex-1 min-w-0 p-4 sm:p-8">
-        <h1 className="ledger-serif text-xl sm:text-2xl mb-1">Property Ledger</h1>
-        <p className="text-xs mb-5" style={{ color: "var(--ink-soft)" }}>{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
+        <h1 className="ledger-serif text-2xl sm:text-3xl mb-2">Property Ledger</h1>
+        <p className="text-xs mb-6" style={{ color: "var(--ink-soft)" }}>{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</p>
 
-        <div className="card px-4 py-3 mb-6 flex flex-wrap gap-x-6 gap-y-1 ledger-mono text-xs">
-          <span><strong>{properties.length}</strong> properties</span>
-          <span><strong>{tenants.length}</strong> units</span>
-          <span><strong style={{ color: "var(--green)" }}>{formatCurrency(collected)}</strong> collected</span>
-          <span><strong style={{ color: overdueCount ? "var(--red)" : "var(--ink)" }}>{overdueCount}</strong> overdue</span>
-          <span><strong>{openRepairs + inProgressRepairs}</strong> open repairs</span>
-          <span><strong>{openComplaints}</strong> open complaints</span>
-          <span><strong>{in7Days}</strong> appointments next 7 days</span>
+        <div className="card px-4 py-3 mb-8 flex flex-wrap gap-x-6 gap-y-2 ledger-mono text-xs items-center">
+          <span className="flex items-center gap-1.5"><Home size={13} style={{ color: "var(--ink-soft)" }} /><strong>{properties.length}</strong> properties</span>
+          <span className="flex items-center gap-1.5"><DollarSign size={13} style={{ color: "var(--ink-soft)" }} /><strong>{tenants.length}</strong> units</span>
+          <span className="flex items-center gap-1.5"><Check size={13} style={{ color: "var(--green)" }} /><strong style={{ color: "var(--green)" }}>{formatCurrency(collected)}</strong> collected</span>
+          <span className="flex items-center gap-1.5"><AlertTriangle size={13} style={{ color: overdueCount ? "var(--red)" : "var(--ink-soft)" }} /><strong style={{ color: overdueCount ? "var(--red)" : "var(--ink)" }}>{overdueCount}</strong> overdue</span>
+          <span className="flex items-center gap-1.5"><Wrench size={13} style={{ color: "var(--ink-soft)" }} /><strong>{openRepairs + inProgressRepairs}</strong> open repairs</span>
+          <span className="flex items-center gap-1.5"><MessageSquare size={13} style={{ color: "var(--ink-soft)" }} /><strong>{openComplaints}</strong> open complaints</span>
+          <span className="flex items-center gap-1.5"><CalendarDays size={13} style={{ color: "var(--ink-soft)" }} /><strong>{in7Days}</strong> appointments next 7 days</span>
         </div>
 
         {tab === "properties" && (
@@ -436,7 +442,7 @@ function PropertiesTab({ properties, tenants, repairs, complaints, onAdd, onEdit
     <div>
       <div className="flex items-center justify-between mb-2">
         <p className="ledger-serif text-sm">Properties</p>
-        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--ink)", color: "var(--paper)" }}>
+        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-125" style={{ background: "var(--ink)", color: "var(--paper)" }}>
           <Plus size={14} /> Add property
         </button>
       </div>
@@ -453,8 +459,8 @@ function PropertiesTab({ properties, tenants, repairs, complaints, onAdd, onEdit
           </label>
           <LedgerInput label="Notes" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
           <div className="sm:col-span-2 flex gap-2">
-            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
-            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
+            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-110" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
+            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:bg-black/5" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
           </div>
         </div>
       )}
@@ -465,7 +471,7 @@ function PropertiesTab({ properties, tenants, repairs, complaints, onAdd, onEdit
           const rCount = repairs.filter((r) => r.propertyId === p.id && r.status !== "Done").length;
           const cCount = complaints.filter((c) => c.propertyId === p.id && c.status !== "Resolved").length;
           return (
-            <div key={p.id} className="card p-3">
+            <div key={p.id} className="card card-hover p-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <p className="font-medium text-sm">{p.name}</p>
@@ -480,8 +486,8 @@ function PropertiesTab({ properties, tenants, repairs, complaints, onAdd, onEdit
                 <span>{cCount} open complaint{cCount !== 1 ? "s" : ""}</span>
               </div>
               <div className="flex justify-end gap-2 mt-2">
-                <button onClick={() => openEdit(p)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
-                <button onClick={() => onDelete(p.id)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
+                <button onClick={() => openEdit(p)} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
+                <button onClick={() => onDelete(p.id)} className="p-1.5 rounded-md transition hover:bg-red-50" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
               </div>
             </div>
           );
@@ -522,7 +528,7 @@ function RentTab({ tenants, properties, onAdd, onEdit, onDelete, paidCount, dueC
 
       <div className="flex items-center justify-between mb-2">
         <p className="ledger-serif text-sm">Tenants</p>
-        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--ink)", color: "var(--paper)" }}>
+        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-125" style={{ background: "var(--ink)", color: "var(--paper)" }}>
           <Plus size={14} /> Add tenant
         </button>
       </div>
@@ -535,26 +541,26 @@ function RentTab({ tenants, properties, onAdd, onEdit, onDelete, paidCount, dueC
           <LedgerInput label="Rent ($)" type="number" value={draft.rentAmount} onChange={(e) => setDraft({ ...draft, rentAmount: e.target.value })} />
           <LedgerInput label="Due day (1-31)" type="number" min="1" max="31" value={draft.dueDay} onChange={(e) => setDraft({ ...draft, dueDay: e.target.value })} />
           <div className="sm:col-span-4 flex gap-2">
-            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
-            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
+            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-110" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
+            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:bg-black/5" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
           </div>
         </div>
       )}
 
       <div className="ledger-lines">
         {tenants.map((t) => (
-          <div key={t.id} className="flex flex-wrap items-center gap-3 py-2.5">
+          <div key={t.id} className="ledger-row flex flex-wrap items-center gap-3 py-2.5 px-2 -mx-2">
             <span className="w-32 font-medium truncate">{t.name}</span>
             <span className="w-32 text-xs ledger-mono truncate" style={{ color: "var(--ink-soft)" }}>{propName(properties, t.propertyId)}{t.unit ? ` · ${t.unit}` : ""}</span>
             <span className="w-20 ledger-mono text-sm">{formatCurrency(t.rentAmount)}</span>
             <span className="w-24 text-xs ledger-mono" style={{ color: "var(--ink-soft)" }}>due day {t.dueDay}</span>
-            <StampBadge label={t.status} tone={t.status === "PAID" ? "green" : t.status === "OVERDUE" ? "red" : "navy"} seed={t.id} />
+            <StampBadge label={t.status} tone={t.status === "PAID" ? "green" : t.status === "OVERDUE" ? "red" : "navy"} />
             <span className="flex-1" />
             {t.status !== "PAID" && (
-              <button onClick={() => onEdit(t.id, { lastPaidPeriod: currentPeriod() })} className="text-xs font-semibold px-2 py-1 rounded" style={{ background: "var(--green)", color: "#fff" }}>Mark paid</button>
+              <button onClick={() => onEdit(t.id, { lastPaidPeriod: currentPeriod() })} className="text-xs font-semibold px-2 py-1 rounded-md transition hover:brightness-110" style={{ background: "var(--green)", color: "#fff" }}>Mark paid</button>
             )}
-            <button onClick={() => openEdit(t)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
-            <button onClick={() => onDelete(t.id)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
+            <button onClick={() => openEdit(t)} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
+            <button onClick={() => onDelete(t.id)} className="p-1.5 rounded-md transition hover:bg-red-50" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
           </div>
         ))}
         {tenants.length === 0 && <p className="text-sm py-6" style={{ color: "var(--ink-soft)" }}>No tenants on the ledger yet.</p>}
@@ -625,7 +631,7 @@ function RepairsTab({ repairs, properties, onAdd, onEdit, onDelete, open, inProg
 
       <div className="flex items-center justify-between mb-2">
         <p className="ledger-serif text-sm">Repair requests</p>
-        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--ink)", color: "var(--paper)" }}>
+        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-125" style={{ background: "var(--ink)", color: "var(--paper)" }}>
           <Plus size={14} /> Add repair
         </button>
       </div>
@@ -652,15 +658,15 @@ function RepairsTab({ repairs, properties, onAdd, onEdit, onDelete, open, inProg
             <input className="ledger-input" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
           </label>
           <div className="sm:col-span-2 flex gap-2">
-            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
-            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
+            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-110" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
+            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:bg-black/5" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
           </div>
         </div>
       )}
 
       <div className="grid sm:grid-cols-2 gap-3">
         {repairs.map((r) => (
-          <div key={r.id} className="card p-3">
+          <div key={r.id} className="card card-hover p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="font-medium text-sm">{r.title}</p>
               <span className="text-[10px] font-mono shrink-0" style={{ color: priorityColor[r.priority] }}>{r.priority?.toUpperCase()}</span>
@@ -683,10 +689,10 @@ function RepairsTab({ repairs, properties, onAdd, onEdit, onDelete, open, inProg
             </div>
 
             <div className="flex items-center gap-2">
-              <StampBadge label={r.status} tone={statusTone[r.status]} seed={r.id} />
+              <StampBadge label={r.status} tone={statusTone[r.status]} />
               <span className="flex-1" />
-              <button onClick={() => openEdit(r)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
-              <button onClick={() => onDelete(r.id)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
+              <button onClick={() => openEdit(r)} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
+              <button onClick={() => onDelete(r.id)} className="p-1.5 rounded-md transition hover:bg-red-50" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
             </div>
           </div>
         ))}
@@ -698,8 +704,8 @@ function RepairsTab({ repairs, properties, onAdd, onEdit, onDelete, open, inProg
           <div className="max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
             <img src={photoCache[lightbox.photoId]} className="w-full rounded" alt="Repair full size" />
             <div className="flex justify-end gap-2 mt-3">
-              <button onClick={() => handleDeletePhoto(lightbox.repairId, lightbox.photoId)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--red)", color: "#fff" }}><Trash2 size={14} /> Delete photo</button>
-              <button onClick={() => setLightbox(null)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ border: "1px solid var(--paper)", color: "var(--paper)" }}><X size={14} /> Close</button>
+              <button onClick={() => handleDeletePhoto(lightbox.repairId, lightbox.photoId)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-110" style={{ background: "var(--red)", color: "#fff" }}><Trash2 size={14} /> Delete photo</button>
+              <button onClick={() => setLightbox(null)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:bg-white/10" style={{ border: "1px solid var(--paper)", color: "var(--paper)" }}><X size={14} /> Close</button>
             </div>
           </div>
         </div>
@@ -729,7 +735,7 @@ function ComplaintsTab({ complaints, properties, onAdd, onEdit, onDelete }) {
     <div>
       <div className="flex items-center justify-between mb-2">
         <p className="ledger-serif text-sm">Complaints</p>
-        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--ink)", color: "var(--paper)" }}>
+        <button onClick={openAdd} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-125" style={{ background: "var(--ink)", color: "var(--paper)" }}>
           <Plus size={14} /> Log complaint
         </button>
       </div>
@@ -757,15 +763,15 @@ function ComplaintsTab({ complaints, properties, onAdd, onEdit, onDelete }) {
             <input className="ledger-input" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
           </label>
           <div className="sm:col-span-2 flex gap-2">
-            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
-            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
+            <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-110" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
+            <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:bg-black/5" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
           </div>
         </div>
       )}
 
       <div className="grid sm:grid-cols-2 gap-3">
         {complaints.map((c) => (
-          <div key={c.id} className="card p-3">
+          <div key={c.id} className="card card-hover p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="font-medium text-sm">{c.title}</p>
               <span className="text-[10px] font-mono shrink-0" style={{ color: categoryColor[c.category] || "var(--ink-soft)" }}>{c.category?.toUpperCase()}</span>
@@ -773,10 +779,10 @@ function ComplaintsTab({ complaints, properties, onAdd, onEdit, onDelete }) {
             <p className="text-xs ledger-mono mb-2" style={{ color: "var(--ink-soft)" }}>{propName(properties, c.propertyId)}{c.unit ? ` · ${c.unit}` : ""} · filed by {c.filedBy || "—"} · {formatDate(c.dateReported)}</p>
             {c.notes && <p className="text-xs mb-2" style={{ color: "var(--ink-soft)" }}>{c.notes}</p>}
             <div className="flex items-center gap-2">
-              <StampBadge label={c.status} tone={statusTone[c.status]} seed={c.id} />
+              <StampBadge label={c.status} tone={statusTone[c.status]} />
               <span className="flex-1" />
-              <button onClick={() => openEdit(c)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
-              <button onClick={() => onDelete(c.id)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
+              <button onClick={() => openEdit(c)} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
+              <button onClick={() => onDelete(c.id)} className="p-1.5 rounded-md transition hover:bg-red-50" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
             </div>
           </div>
         ))}
@@ -824,7 +830,7 @@ function AppointmentsTab({ appointments, properties, onAdd, onEdit, onDelete }) 
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className="ledger-serif text-sm">Upcoming appointments</p>
-          <button onClick={() => openAdd(selectedDate)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--ink)", color: "var(--paper)" }}>
+          <button onClick={() => openAdd(selectedDate)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-125" style={{ background: "var(--ink)", color: "var(--paper)" }}>
             <Plus size={14} /> Schedule
           </button>
         </div>
@@ -842,22 +848,22 @@ function AppointmentsTab({ appointments, properties, onAdd, onEdit, onDelete }) 
               <input className="ledger-input" value={draft.notes} onChange={(e) => setDraft({ ...draft, notes: e.target.value })} />
             </label>
             <div className="sm:col-span-2 flex gap-2">
-              <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
-              <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
+              <button onClick={save} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:brightness-110" style={{ background: "var(--green)", color: "#fff" }}><Check size={14} /> Save</button>
+              <button onClick={() => setShowForm(false)} className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md transition hover:bg-black/5" style={{ border: "1px solid var(--rule)" }}><X size={14} /> Cancel</button>
             </div>
           </div>
         )}
 
         <div className="ledger-lines">
           {upcoming.map((a) => (
-            <div key={a.id} className="flex flex-wrap items-center gap-3 py-2.5">
+            <div key={a.id} className="ledger-row flex flex-wrap items-center gap-3 py-2.5 px-2 -mx-2">
               <span className="w-24 ledger-mono text-xs" style={{ color: "var(--ink-soft)" }}>{formatDate(a.date)}</span>
               <span className="w-14 ledger-mono text-xs" style={{ color: "var(--ink-soft)" }}>{a.time}</span>
               <span className="font-medium text-sm">{a.title}</span>
               <span className="text-xs ledger-mono" style={{ color: "var(--ink-soft)" }}>{a.person}{a.propertyId ? ` · ${propName(properties, a.propertyId)}` : ""}{a.unit ? ` · ${a.unit}` : ""}</span>
               <span className="flex-1" />
-              <button onClick={() => openEdit(a)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
-              <button onClick={() => onDelete(a.id)} className="p-1.5 rounded hover:bg-black/5" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
+              <button onClick={() => openEdit(a)} className="p-1.5 rounded-md transition hover:bg-black/5" style={{ color: "var(--ink-soft)" }}><Pencil size={14} /></button>
+              <button onClick={() => onDelete(a.id)} className="p-1.5 rounded-md transition hover:bg-red-50" style={{ color: "var(--red)" }}><Trash2 size={14} /></button>
             </div>
           ))}
           {upcoming.length === 0 && <p className="text-sm py-6" style={{ color: "var(--ink-soft)" }}>Nothing scheduled yet.</p>}
