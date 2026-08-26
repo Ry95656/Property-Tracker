@@ -31,3 +31,6 @@ vercel
   - clearing browser data wipes it
 - repair photos save too, dont go too crazy with them since browser storage isnt huge
 - App.jsx imports a small `storage` helper from `storage.js` (wraps localStorage) — dont swap that for `window.storage`, that doesnt exist in a normal browser and will break the app
+
+## AI declaration
+- I used help from AI for the package lock so 'npm install' can run smooth on my older devices
